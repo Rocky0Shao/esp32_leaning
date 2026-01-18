@@ -1,0 +1,7 @@
+#ifndef JOYSTICK_H
+#define JOYSTICK_H
+
+void joystickInit();
+int joystickReadX();
+
+#endif

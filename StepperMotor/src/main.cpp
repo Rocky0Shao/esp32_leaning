@@ -1,11 +1,11 @@
 #include <Arduino.h>
 
 // 28BYJ-48 stepper motor with ULN2003 driver
-// Wiring: IN1->GPIO19, IN2->GPIO18, IN3->GPIO5, IN4->GPIO4
+// Wiring: IN1->GPIO26, IN2->GPIO27, IN3->GPIO14, IN4->GPIO4
 
-#define IN1 19
-#define IN2 18
-#define IN3 5
+#define IN1 26
+#define IN2 27
+#define IN3 14
 #define IN4 4
 
 // 28BYJ-48 has 2048 steps per revolution (in half-step mode)
@@ -88,7 +88,7 @@ void setup() {
 
   Serial.println();
   Serial.println("=== 28BYJ-48 Stepper Motor Test ===");
-  Serial.println("Pins: IN1=19, IN2=18, IN3=5, IN4=4");
+  Serial.println("Pins: IN1=26, IN2=27, IN3=14, IN4=4");
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
