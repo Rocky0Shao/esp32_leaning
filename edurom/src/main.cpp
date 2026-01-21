@@ -1,7 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "esp_wpa2.h"
-#include "secrets.h" // Import your credentials
+#include "secrets.h" 
+#include <HTTPClient.h>
 
 void setup() {
   Serial.begin(115200);
@@ -15,6 +16,7 @@ void setup() {
   WiFi.mode(WIFI_STA);
   
   // 1. Load the Certificate from secrets.h
+  // keep this commented out as it broke the connection for me
   // esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)EDUROAM_CA_CERT, strlen(EDUROAM_CA_CERT));
 
   // 2. Load Credentials from secrets.h
@@ -47,6 +49,27 @@ void setup() {
     Serial.println(WiFi.localIP());
     Serial.print("Signal Strength (RSSI): ");
     Serial.println(WiFi.RSSI());
+    {
+      Serial.println("\nTesting Internet Access...");
+    HTTPClient http;
+    
+    // We use http (not https) to keep the test simple and avoid SSL errors for now
+    http.begin("http://www.google.com"); 
+    
+    int httpCode = http.GET();
+    
+    if (httpCode > 0) {
+        Serial.printf("Server Responded! Status Code: %d\n", httpCode);
+        // Code 200 = OK. Code 301/302 = Redirect (also means internet works).
+        if (httpCode == 200 || httpCode == 301 || httpCode == 302) {
+            Serial.println(">>> SUCCESS: Your ESP32 has access to the outside internet! <<<");
+        }
+    } else {
+        Serial.printf("Request failed, error: %s\n", http.errorToString(httpCode).c_str());
+    }
+    http.end();
+    // -----------------------------------
+    }
     
   } else {
     Serial.println("\nFailed to connect.");
