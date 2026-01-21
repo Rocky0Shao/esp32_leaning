@@ -1,67 +1,58 @@
+#include <Arduino.h>
 #include <WiFi.h>
 #include "esp_wpa2.h"
-#include "secrets.h" // Import the separate file
-
-// Use credentials from secrets.h
-const char* ssid = EAP_SSID;
-const char* eap_identity = EAP_IDENTITY;
-const char* eap_password = EAP_PASSWORD;
-
-// Counter for the success message
-int successCount = 0; 
+#include "secrets.h" // Import your credentials
 
 void setup() {
   Serial.begin(115200);
   delay(1000);
-
+  
   Serial.println();
   Serial.print("Connecting to network: ");
-  Serial.println(ssid);
+  Serial.println(EAP_SSID);
 
   WiFi.disconnect(true); 
-  WiFi.mode(WIFI_STA); 
-
-  // Configure WPA2 Enterprise
-  // We cast to (uint8_t *) because the library expects byte arrays
-  esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)eap_identity, strlen(eap_identity));
-  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)eap_identity, strlen(eap_identity));
-  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)eap_password, strlen(eap_password));
+  WiFi.mode(WIFI_STA);
   
-  // Enable WPA2 Enterprise
+  // 1. Load the Certificate from secrets.h
+  // esp_wifi_sta_wpa2_ent_set_ca_cert((uint8_t *)EDUROAM_CA_CERT, strlen(EDUROAM_CA_CERT));
+
+  // 2. Load Credentials from secrets.h
+  // OSU uses full email for both identity and username
+  esp_wifi_sta_wpa2_ent_set_identity((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
+  esp_wifi_sta_wpa2_ent_set_username((uint8_t *)EAP_IDENTITY, strlen(EAP_IDENTITY));
+  esp_wifi_sta_wpa2_ent_set_password((uint8_t *)EAP_PASSWORD, strlen(EAP_PASSWORD));
+
+  // 3. Enable WPA2 Enterprise
   esp_wifi_sta_wpa2_ent_enable();
 
-  WiFi.begin(ssid);
+  // 4. Start Connection
+  WiFi.begin(EAP_SSID);
 
-  // Wait for connection
-  int setupCounter = 0;
+  // 5. Wait for connection
+  int counter = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    setupCounter++;
-    if(setupCounter >= 60){ // Timeout after 30s (60 * 500ms)
-       Serial.println("\nConnection Failed! Rebooting...");
-       ESP.restart();
+    counter++;
+    if(counter > 60){ // Timeout after 30 seconds
+        Serial.println("\nConnection timed out! Checking error status...");
+        break;
     }
   }
 
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.print("IP address: ");
-  Serial.println(WiFi.localIP());
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\nSuccessfully connected to eduroam!");
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.localIP());
+    Serial.print("Signal Strength (RSSI): ");
+    Serial.println(WiFi.RSSI());
+    
+  } else {
+    Serial.println("\nFailed to connect.");
+  }
 }
 
 void loop() {
-  // Check if we are still connected
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("success -");
-    Serial.println(successCount);
-    
-    successCount++; // Increment the counter
-  } else {
-    Serial.println("Connection lost...");
-    // If you want it to try reconnecting, you usually need to restart the cycle
-    // or just reboot: ESP.restart();
-  }
-  
-  delay(1000); // Wait for 1 second
+  // Your code here
 }
