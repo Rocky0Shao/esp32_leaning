@@ -5,4 +5,4 @@
 .vscode/ipch
 
 .env
-secrets.h
+**/secrets.h
