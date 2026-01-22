@@ -69,7 +69,7 @@ app.get('/', (req, res) => {
     }
 
     // Refresh every 200ms (5 fps)
-    setInterval(refreshFrame, 200);
+    setInterval(refreshFrame, 16);
   </script>
 </body>
 </html>
