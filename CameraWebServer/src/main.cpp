@@ -97,7 +97,7 @@ void setup() {
 
 void loop() {
   sendFrameToCloud();
-  delay(200); // ~5 fps
+  // delay(200); // ~5 fps
 }
 
 void sendFrameToCloud() {
